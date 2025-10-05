@@ -12,7 +12,7 @@ int servo_0_pin = 9;   // use pin 9 for servo
 int servo_1_pin = 10;    // hand wave servo
 int buzz_pin = 2;
 
-int detection_distance = 50; // in cm
+int detection_distance = 10; // in cm
 int start_angle = 30;
 int end_angle = 140;
 
@@ -23,6 +23,10 @@ float cm = 0;   // use float for better accuracy
 int br = 9600; // serial baud rate
 bool detected = false;
 
+
+int green_led_pin = 3;
+int red_led_pin = 11;
+
 long readUltrasonicDistance(int triggerPin, int echoPin)
 {
   pinMode(triggerPin, OUTPUT);  
@@ -31,7 +35,6 @@ long readUltrasonicDistance(int triggerPin, int echoPin)
   digitalWrite(triggerPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(triggerPin, LOW);
-
   pinMode(echoPin, INPUT);
   return pulseIn(echoPin, HIGH, 30000UL); // 30ms timeout
 }
@@ -39,14 +42,20 @@ long readUltrasonicDistance(int triggerPin, int echoPin)
 void setup() {
   servo_0.attach(servo_0_pin); 
   servo_1.attach(servo_1_pin); 
-  servo_1.write(0);
   pinMode(buzz_pin,OUTPUT);
+  pinMode(green_led_pin, OUTPUT);
+  pinMode(red_led_pin, OUTPUT);
+
+  servo_1.write(0);
   Serial.begin(br);
   matrix.begin();
 
 }
 
 void loop() {
+
+  digitalWrite(green_led_pin, HIGH);
+  digitalWrite(red_led_pin, LOW);
 
   detect_object();
 
@@ -80,6 +89,7 @@ void detect_object() {
       Serial.println(" cm");
       flashMatrix();
       buzz();
+      glow_leds();
       wave_hand();
     } else {
       detected = false;
@@ -89,6 +99,15 @@ void detect_object() {
   }
 }
 
+void glow_leds() {
+    digitalWrite(red_led_pin, HIGH);
+    digitalWrite(green_led_pin, LOW);
+    /*
+    delay(2000);
+    digitalWrite(green_led_pin, HIGH);
+    digitalWrite(red_led_pin, LOW);
+    */
+}
 
 void wave_hand() {
 
